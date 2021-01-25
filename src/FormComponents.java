@@ -13,6 +13,7 @@ public class FormComponents extends JFrame implements ItemListener {
     private JLabel lblInfo = null;
     private JTextArea strResult = null;
     private JFormattedTextField strMoney, strDate, strPercent, strFormat;
+    private JPasswordField strPassword;
 
     private static final DateFormat dteFormat = new SimpleDateFormat("dd.MM.yyyy");
 
@@ -123,6 +124,14 @@ public class FormComponents extends JFrame implements ItemListener {
         }
         strFormat.setBounds(85,70,150,20);
         pnlData.add(strFormat);
+
+        JLabel lblPassword = new JLabel("Password:", SwingConstants.RIGHT);
+        lblPassword.setBounds(10,90,70,20);
+        pnlData.add(lblPassword);
+
+        strPassword = new JPasswordField("12345678");
+        strPassword.setBounds(85,90,150,20);
+        pnlData.add(strPassword);
         //------------------------------------------------------------------------------
     }
 
@@ -162,6 +171,7 @@ public class FormComponents extends JFrame implements ItemListener {
         WriteMsg("Date: " + strDate.getText() + " -> " + strDate.getValue());
         WriteMsg("Percent: " + strPercent.getValue());
         WriteMsg("Format: " + strFormat.getValue());
+        WriteMsg("Password: " + new String(strPassword.getPassword()));
     }
 
     private void doCancel(){
