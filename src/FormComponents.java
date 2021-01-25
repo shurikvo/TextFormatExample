@@ -1,18 +1,20 @@
-import java.text.NumberFormat;
+import java.text.*;
+import java.util.*;
 
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.text.MaskFormatter;
 import java.awt.*;
 
 public class FormComponents extends JFrame implements ItemListener {
     private JFrame frame;
 
-    private JLabel lblInfo = null, lblFormatted;
+    private JLabel lblInfo = null;
     private JTextArea strResult = null;
-    private JPanel pnlData, pnlBottom, pnlButtons;
-    private JButton btnCancel, btnCommit;
-    private JFormattedTextField strMoney;
+    private JFormattedTextField strMoney, strDate, strPercent, strFormat;
+
+    private static final DateFormat dteFormat = new SimpleDateFormat("dd.MM.yyyy");
 
     private void addComponentsToPane(Container pane) {
         if (!(pane.getLayout() instanceof BorderLayout)) {
@@ -22,71 +24,105 @@ public class FormComponents extends JFrame implements ItemListener {
 
         Border blackline = BorderFactory.createLineBorder(Color.black);
         // Log area: -------------------------------------------------------------------
-        {
-            lblInfo = new JLabel();
-            strResult = new JTextArea("-------------------------------------------------");
-            strResult.setEditable(false);
-            strResult.setBackground(Color.black);
-            strResult.setForeground(Color.white);
-            strResult.setFont(new Font("Courier New", Font.PLAIN, 12));
-            JScrollPane scroll = new JScrollPane(strResult,
-                    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-            pane.add(scroll, BorderLayout.CENTER);
-        }
+        lblInfo = new JLabel();
+        strResult = new JTextArea("-------------------------------------------------");
+        strResult.setEditable(false);
+        strResult.setBackground(Color.black);
+        strResult.setForeground(Color.white);
+        strResult.setFont(new Font("Courier New", Font.PLAIN, 12));
+        JScrollPane scroll = new JScrollPane(strResult,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        pane.add(scroll, BorderLayout.CENTER);
         // Bottom area: ----------------------------------------------------------------
-        {
-            pnlBottom = new JPanel();
-            pnlBottom.setLayout(new BorderLayout());
-            pane.add(pnlBottom, BorderLayout.PAGE_END);
+        JPanel pnlBottom = new JPanel();
+        pnlBottom.setLayout(new BorderLayout());
+        pane.add(pnlBottom, BorderLayout.PAGE_END);
 
-            lblInfo = new JLabel("");
-            lblInfo.setBorder(blackline);
-            pnlBottom.add(lblInfo, BorderLayout.CENTER);
+        lblInfo = new JLabel("");
+        lblInfo.setBorder(blackline);
+        pnlBottom.add(lblInfo, BorderLayout.CENTER);
 
-            pnlButtons = new JPanel();
-            pnlButtons.setLayout(null);
-            pnlButtons.setPreferredSize(new Dimension(210, 20));
-            pnlBottom.add(pnlButtons, BorderLayout.LINE_END);
+        JPanel pnlButtons = new JPanel();
+        pnlButtons.setLayout(null);
+        pnlButtons.setPreferredSize(new Dimension(210, 20));
+        pnlBottom.add(pnlButtons, BorderLayout.LINE_END);
 
-            int offBot = 2, wBotBut = 100, hBotBut = 20;
+        int offBot = 2, wBotBut = 100, hBotBut = 20;
 
-            btnCancel = new JButton("Cancel");
-            btnCancel.setBounds(offBot, 0, wBotBut, hBotBut);
-            btnCancel.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    doCancel();
-                }
-            });
-            pnlButtons.add(btnCancel);
+        JButton btnCancel = new JButton("Cancel");
+        btnCancel.setBounds(offBot, 0, wBotBut, hBotBut);
+        btnCancel.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                doCancel();
+            }
+        });
+        pnlButtons.add(btnCancel);
 
-            btnCommit = new JButton("Commit");
-            btnCommit.setBounds(offBot + wBotBut + 3, 0, wBotBut, hBotBut);
-            btnCommit.addItemListener(this);
-            btnCommit.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    doCommit();
-                }
-            });
-            pnlButtons.add(btnCommit);
-        }
+        JButton btnCommit = new JButton("Commit");
+        btnCommit.setBounds(offBot + wBotBut + 3, 0, wBotBut, hBotBut);
+        btnCommit.addItemListener(this);
+        btnCommit.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                doCommit();
+            }
+        });
+        pnlButtons.add(btnCommit);
         // Data area: ------------------------------------------------------------------
-        {
-            pnlData = new JPanel();
-            pnlData.setLayout(null);
-            pnlData.setPreferredSize(new Dimension(300, 300));
-            pane.add(pnlData, BorderLayout.PAGE_START);
+        JPanel pnlData = new JPanel();
+        pnlData.setLayout(null);
+        pnlData.setPreferredSize(new Dimension(300, 300));
+        pane.add(pnlData, BorderLayout.PAGE_START);
 
-            lblFormatted = new JLabel("Money:", SwingConstants.RIGHT);
-            lblFormatted.setBounds(10,10,70,20);
-            pnlData.add(lblFormatted);
+        JLabel lblMoney = new JLabel("Money:", SwingConstants.RIGHT);
+        lblMoney.setBounds(10,10,70,20);
+        pnlData.add(lblMoney);
 
+        strMoney = new JFormattedTextField(NumberFormat.getCurrencyInstance());
+        strMoney.setBounds(85,10,150,20);
+        strMoney.setValue(100.1);
+        pnlData.add(strMoney);
 
-            NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
-            strMoney = new JFormattedTextField(numberFormat);
-            strMoney.setBounds(85,10,150,20);
-            strMoney.setValue(new Double(100.1));
-            pnlData.add(strMoney);
+        JLabel lblDate = new JLabel("Date:", SwingConstants.RIGHT);
+        lblDate.setBounds(10,30,70,20);
+        pnlData.add(lblDate);
+
+        strDate = new JFormattedTextField(dteFormat);
+        strDate.setBounds(85,30,150,20);
+        strDate.setColumns(20);
+        pnlData.add(strDate);
+        try {
+            MaskFormatter dateMask = new MaskFormatter("##.##.####");
+            dateMask.install(strDate);
+        } catch (ParseException ex) {
+            WriteMsg("addComponentsToPane: "+ ex);
         }
+
+        JLabel lblPercent = new JLabel("Percent:", SwingConstants.RIGHT);
+        lblPercent.setBounds(10,50,70,20);
+        pnlData.add(lblPercent);
+
+        strPercent = new JFormattedTextField(NumberFormat.getPercentInstance());
+        strPercent.setBounds(85,50,150,20);
+        strPercent.setValue(.35);
+        pnlData.add(strPercent);
+
+        JLabel lblFormat = new JLabel("Format:", SwingConstants.RIGHT);
+        lblPercent.setBounds(10,70,70,20);
+        pnlData.add(lblPercent);
+
+        try {
+            strFormat = new JFormattedTextField(new MaskFormatter("#(###)###-##-##"));
+        } catch (ParseException e) {
+            WriteMsg("addComponentsToPane: "+ e);
+        }
+        try {
+            MaskFormatter formatMask = new MaskFormatter("#(###)###-##-##");
+            formatMask.install(strFormat);
+        } catch (ParseException ex) {
+            WriteMsg("addComponentsToPane: "+ ex);
+        }
+        strFormat.setBounds(85,70,150,20);
+        pnlData.add(strFormat);
         //------------------------------------------------------------------------------
     }
 
@@ -123,6 +159,9 @@ public class FormComponents extends JFrame implements ItemListener {
     private void doCommit(){
         WriteMsg("Done: Commit");
         WriteMsg("Money: " + strMoney.getValue());
+        WriteMsg("Date: " + strDate.getText() + " -> " + strDate.getValue());
+        WriteMsg("Percent: " + strPercent.getValue());
+        WriteMsg("Format: " + strFormat.getValue());
     }
 
     private void doCancel(){
